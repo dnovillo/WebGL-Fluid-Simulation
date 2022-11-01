@@ -29,23 +29,29 @@ SOFTWARE.
 const promoPopup = document.getElementsByClassName('promo')[0];
 const promoPopupClose = document.getElementsByClassName('promo-close')[0];
 
+// dnovillo: NOT NEEDED.
 if (isMobile()) {
     setTimeout(() => {
         promoPopup.style.display = 'table';
     }, 20000);
 }
 
+// dnovillo: NOT NEEDED.
 promoPopupClose.addEventListener('click', e => {
     promoPopup.style.display = 'none';
 });
 
+// dnovillo: NOT NEEDED.
 const appleLink = document.getElementById('apple_link');
+// dnovillo: NOT NEEDED.
 appleLink.addEventListener('click', e => {
     ga('send', 'event', 'link promo', 'app');
     window.open('https://apps.apple.com/us/app/fluid-simulation/id1443124993');
 });
 
+// dnovillo: NOT NEEDED.
 const googleLink = document.getElementById('google_link');
+// dnovillo: NOT NEEDED.
 googleLink.addEventListener('click', e => {
     ga('send', 'event', 'link promo', 'app');
     window.open('https://play.google.com/store/apps/details?id=games.paveldogreat.fluidsimfree');
@@ -53,9 +59,11 @@ googleLink.addEventListener('click', e => {
 
 // Simulation section
 
+// dnovillo: DONE
 const canvas = document.getElementsByTagName('canvas')[0];
 resizeCanvas();
 
+// dnovillo: DONE
 let config = {
     SIM_RESOLUTION: 128,
     DYE_RESOLUTION: 1024,
@@ -74,8 +82,8 @@ let config = {
     BACK_COLOR: { r: 0, g: 0, b: 0 },
     TRANSPARENT: false,
     BLOOM: true,
-    BLOOM_ITERATIONS: 8,
-    BLOOM_RESOLUTION: 256,
+    BLOOM_ITERATIONS: 16,
+    BLOOM_RESOLUTION: 1024,
     BLOOM_INTENSITY: 0.8,
     BLOOM_THRESHOLD: 0.6,
     BLOOM_SOFT_KNEE: 0.7,
@@ -84,6 +92,7 @@ let config = {
     SUNRAYS_WEIGHT: 1.0,
 }
 
+// dnovillo: DONE
 function pointerPrototype () {
     this.id = -1;
     this.texcoordX = 0;
@@ -103,6 +112,7 @@ pointers.push(new pointerPrototype());
 
 const { gl, ext } = getWebGLContext(canvas);
 
+// dnovillo: NOT NEEDED
 if (isMobile()) {
     config.DYE_RESOLUTION = 512;
 }
@@ -115,6 +125,7 @@ if (!ext.supportLinearFiltering) {
 
 startGUI();
 
+// dnovillo: NOT NEEDED
 function getWebGLContext (canvas) {
     const params = { alpha: true, depth: false, stencil: false, antialias: false, preserveDrawingBuffer: false };
 
@@ -205,6 +216,7 @@ function supportRenderTextureFormat (gl, internalFormat, format, type) {
     return status == gl.FRAMEBUFFER_COMPLETE;
 }
 
+// dnovillo: MAYBE (pull into ProjApp::Setup())
 function startGUI () {
     var gui = new dat.GUI({ width: 300 });
     gui.add(config, 'DYE_RESOLUTION', { 'high': 1024, 'medium': 512, 'low': 256, 'very low': 128 }).name('quality').onFinishChange(initFramebuffers);
@@ -280,10 +292,12 @@ function startGUI () {
         gui.close();
 }
 
+// dnovillo: NOT NEEDED
 function isMobile () {
     return /Mobi|Android/i.test(navigator.userAgent);
 }
 
+// dnovillo: NOT NEEDED
 function captureScreenshot () {
     let res = getResolution(config.CAPTURE_RESOLUTION);
     let target = createFBO(res.width, res.height, ext.formatRGBA.internalFormat, ext.formatRGBA.format, ext.halfFloatTexType, gl.NEAREST);
@@ -298,6 +312,7 @@ function captureScreenshot () {
     URL.revokeObjectURL(datauri);
 }
 
+// dnovillo: NOT NEEDED
 function framebufferToTexture (target) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
     let length = target.width * target.height * 4;
@@ -306,6 +321,7 @@ function framebufferToTexture (target) {
     return texture;
 }
 
+// dnovillo: NOT NEEDED
 function normalizeTexture (texture, width, height) {
     let result = new Uint8Array(texture.length);
     let id = 0;
@@ -322,10 +338,12 @@ function normalizeTexture (texture, width, height) {
     return result;
 }
 
+// dnovillo: NOT NEEDED
 function clamp01 (input) {
     return Math.min(Math.max(input, 0), 1);
 }
 
+// dnovillo: NOT NEEDED
 function textureToCanvas (texture, width, height) {
     let captureCanvas = document.createElement('canvas');
     let ctx = captureCanvas.getContext('2d');
@@ -339,6 +357,7 @@ function textureToCanvas (texture, width, height) {
     return captureCanvas;
 }
 
+// dnovillo: NOT NEEDED
 function downloadURI (filename, uri) {
     let link = document.createElement('a');
     link.download = filename;
@@ -348,6 +367,7 @@ function downloadURI (filename, uri) {
     document.body.removeChild(link);
 }
 
+// dnovillo: NOT NEEDED
 class Material {
     constructor (vertexShader, fragmentShaderSource) {
         this.vertexShader = vertexShader;
@@ -381,6 +401,7 @@ class Material {
     }
 }
 
+// dnovillo: NOT NEEDED
 class Program {
     constructor (vertexShader, fragmentShader) {
         this.uniforms = {};
@@ -393,6 +414,7 @@ class Program {
     }
 }
 
+// dnovillo: NOT NEEDED
 function createProgram (vertexShader, fragmentShader) {
     let program = gl.createProgram();
     gl.attachShader(program, vertexShader);
@@ -405,6 +427,7 @@ function createProgram (vertexShader, fragmentShader) {
     return program;
 }
 
+// dnovillo: NOT NEEDED
 function getUniforms (program) {
     let uniforms = [];
     let uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -415,6 +438,7 @@ function getUniforms (program) {
     return uniforms;
 }
 
+// dnovillo: NOT NEEDED
 function compileShader (type, source, keywords) {
     source = addKeywords(source, keywords);
 
@@ -428,6 +452,7 @@ function compileShader (type, source, keywords) {
     return shader;
 };
 
+// dnovillo: NOT NEEDED
 function addKeywords (source, keywords) {
     if (keywords == null) return source;
     let keywordsString = '';
@@ -437,6 +462,7 @@ function addKeywords (source, keywords) {
     return keywordsString + source;
 }
 
+// dnovillo: DONE
 const baseVertexShader = compileShader(gl.VERTEX_SHADER, `
     precision highp float;
 
@@ -458,6 +484,7 @@ const baseVertexShader = compileShader(gl.VERTEX_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const blurVertexShader = compileShader(gl.VERTEX_SHADER, `
     precision highp float;
 
@@ -476,6 +503,7 @@ const blurVertexShader = compileShader(gl.VERTEX_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const blurShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -493,6 +521,7 @@ const blurShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const copyShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -505,6 +534,7 @@ const copyShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const clearShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -518,6 +548,7 @@ const clearShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const colorShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
 
@@ -528,6 +559,7 @@ const colorShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const checkerboardShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
@@ -546,6 +578,7 @@ const checkerboardShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const displayShaderSource = `
     precision highp float;
     precision highp sampler2D;
@@ -611,6 +644,7 @@ const displayShaderSource = `
     }
 `;
 
+// dnovillo: DONE
 const bloomPrefilterShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -630,6 +664,7 @@ const bloomPrefilterShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const bloomBlurShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -651,6 +686,7 @@ const bloomBlurShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const bloomFinalShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -673,6 +709,7 @@ const bloomFinalShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const sunraysMaskShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
@@ -688,6 +725,7 @@ const sunraysMaskShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const sunraysShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
@@ -723,6 +761,7 @@ const sunraysShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
@@ -743,6 +782,7 @@ const splatShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const advectionShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
@@ -783,6 +823,7 @@ const advectionShader = compileShader(gl.FRAGMENT_SHADER, `
     ext.supportLinearFiltering ? null : ['MANUAL_FILTERING']
 );
 
+// dnovillo: DONE
 const divergenceShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -811,6 +852,7 @@ const divergenceShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const curlShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -832,6 +874,7 @@ const curlShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const vorticityShader = compileShader(gl.FRAGMENT_SHADER, `
     precision highp float;
     precision highp sampler2D;
@@ -865,6 +908,7 @@ const vorticityShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const pressureShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -889,6 +933,7 @@ const pressureShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: DONE
 const gradientSubtractShader = compileShader(gl.FRAGMENT_SHADER, `
     precision mediump float;
     precision mediump sampler2D;
@@ -912,6 +957,7 @@ const gradientSubtractShader = compileShader(gl.FRAGMENT_SHADER, `
     }
 `);
 
+// dnovillo: Puts an image on screen?
 const blit = (() => {
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, -1, 1, 1, 1, 1, -1]), gl.STATIC_DRAW);
@@ -979,6 +1025,7 @@ const gradienSubtractProgram = new Program(baseVertexShader, gradientSubtractSha
 
 const displayMaterial = new Material(baseVertexShader, displayShaderSource);
 
+// dnovillo: DONE
 function initFramebuffers () {
     let simRes = getResolution(config.SIM_RESOLUTION);
     let dyeRes = getResolution(config.DYE_RESOLUTION);
@@ -996,6 +1043,9 @@ function initFramebuffers () {
     else
         dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, rgba.internalFormat, rgba.format, texType, filtering);
 
+    console.log("Image width:  " + simRes.width);
+    console.log("Image height: " + simRes.height);
+    console.log("simRes is: " + simRes);
     if (velocity == null)
         velocity = createDoubleFBO(simRes.width, simRes.height, rg.internalFormat, rg.format, texType, filtering);
     else
@@ -1009,6 +1059,7 @@ function initFramebuffers () {
     initSunraysFramebuffers();
 }
 
+// dnovillo: DONE
 function initBloomFramebuffers () {
     let res = getResolution(config.BLOOM_RESOLUTION);
 
@@ -1031,6 +1082,7 @@ function initBloomFramebuffers () {
     }
 }
 
+// dnovillo: DONE
 function initSunraysFramebuffers () {
     let res = getResolution(config.SUNRAYS_RESOLUTION);
 
@@ -1038,10 +1090,13 @@ function initSunraysFramebuffers () {
     const r = ext.formatR;
     const filtering = ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST;
 
+    console.log('initSunraysFramebuffers\n');
+    console.log('getResolution(' + config.SUNRAYS_RESOLUTION + ') = (' + res.width + ', ' + res.height + ')\n');
     sunrays     = createFBO(res.width, res.height, r.internalFormat, r.format, texType, filtering);
     sunraysTemp = createFBO(res.width, res.height, r.internalFormat, r.format, texType, filtering);
 }
 
+// dnovillo: DONE
 function createFBO (w, h, internalFormat, format, type, param) {
     gl.activeTexture(gl.TEXTURE0);
     let texture = gl.createTexture();
@@ -1076,6 +1131,7 @@ function createFBO (w, h, internalFormat, format, type, param) {
     };
 }
 
+// dnovillo: DONE
 function createDoubleFBO (w, h, internalFormat, format, type, param) {
     let fbo1 = createFBO(w, h, internalFormat, format, type, param);
     let fbo2 = createFBO(w, h, internalFormat, format, type, param);
@@ -1105,6 +1161,7 @@ function createDoubleFBO (w, h, internalFormat, format, type, param) {
     }
 }
 
+// dnovillo: Needed?
 function resizeFBO (target, w, h, internalFormat, format, type, param) {
     let newFBO = createFBO(w, h, internalFormat, format, type, param);
     copyProgram.bind();
@@ -1113,6 +1170,7 @@ function resizeFBO (target, w, h, internalFormat, format, type, param) {
     return newFBO;
 }
 
+// dnovillo: Needed?
 function resizeDoubleFBO (target, w, h, internalFormat, format, type, param) {
     if (target.width == w && target.height == h)
         return target;
@@ -1125,6 +1183,7 @@ function resizeDoubleFBO (target, w, h, internalFormat, format, type, param) {
     return target;
 }
 
+// dnovillo: DONE
 function createTextureAsync (url) {
     let texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -1157,6 +1216,7 @@ function createTextureAsync (url) {
     return obj;
 }
 
+// dnovillo: NOT NEEDED
 function updateKeywords () {
     let displayKeywords = [];
     if (config.SHADING) displayKeywords.push("SHADING");
@@ -1165,14 +1225,17 @@ function updateKeywords () {
     displayMaterial.setKeywords(displayKeywords);
 }
 
+// dnovillo: DONE
 updateKeywords();
 initFramebuffers();
-multipleSplats(parseInt(Math.random() * 20) + 5);
+multipleSplats(1); //parseInt(Math.random() * 20) + 5);
 
 let lastUpdateTime = Date.now();
 let colorUpdateTimer = 0.0;
-update();
+render(null);
+//update();
 
+// dnovillo: IN PROGRESS.
 function update () {
     const dt = calcDeltaTime();
     if (resizeCanvas())
@@ -1181,10 +1244,16 @@ function update () {
     applyInputs();
     if (!config.PAUSED)
         step(dt);
+
+    // dnovillo: Render to screen.
     render(null);
+
+    // dnovillo: Tell the browser that we want to animate again
+    // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
     requestAnimationFrame(update);
 }
 
+// dnovillo: IN PROGRESS
 function calcDeltaTime () {
     let now = Date.now();
     let dt = (now - lastUpdateTime) / 1000;
@@ -1193,6 +1262,7 @@ function calcDeltaTime () {
     return dt;
 }
 
+// dnovillo: NOT NEEDED.
 function resizeCanvas () {
     let width = scaleByPixelRatio(canvas.clientWidth);
     let height = scaleByPixelRatio(canvas.clientHeight);
@@ -1204,6 +1274,7 @@ function resizeCanvas () {
     return false;
 }
 
+// dnovillo: IN PROGRESS.
 function updateColors (dt) {
     if (!config.COLORFUL) return;
 
@@ -1216,6 +1287,7 @@ function updateColors (dt) {
     }
 }
 
+// dnovillo: IN PROGRESS.
 function applyInputs () {
     if (splatStack.length > 0)
         multipleSplats(splatStack.pop());
@@ -1228,13 +1300,14 @@ function applyInputs () {
     });
 }
 
+// dnovillo: IN PROGRESS
 function step (dt) {
     gl.disable(gl.BLEND);
 
     curlProgram.bind();
     gl.uniform2f(curlProgram.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
     gl.uniform1i(curlProgram.uniforms.uVelocity, velocity.read.attach(0));
-    blit(curl);
+    blit(curl); // dnovillo: This reads from velocity FBO and writes to curl FBO.
 
     vorticityProgram.bind();
     gl.uniform2f(vorticityProgram.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
@@ -1293,7 +1366,13 @@ function step (dt) {
     dye.swap();
 }
 
+// dnovillo: DONE
 function render (target) {
+    console.log('In render()');
+    console.log('config.BLOOM: ' + config.BLOOM);
+    console.log('config.SUNRAYS: ' + config.SUNRAYS);
+    console.log('config.TRANSPARENT: ' + config.TRANSPARENT);
+    console.log('target: ' + target);
     if (config.BLOOM)
         applyBloom(dye.read, bloom);
     if (config.SUNRAYS) {
@@ -1316,22 +1395,26 @@ function render (target) {
     drawDisplay(target);
 }
 
+// dnovillo: DONE.
 function drawColor (target, color) {
     colorProgram.bind();
     gl.uniform4f(colorProgram.uniforms.color, color.r, color.g, color.b, 1);
     blit(target);
 }
 
+// dnovillo: DONE.
 function drawCheckerboard (target) {
     checkerboardProgram.bind();
     gl.uniform1f(checkerboardProgram.uniforms.aspectRatio, canvas.width / canvas.height);
     blit(target);
 }
 
+// dnovillo: IN PROGRESS
 function drawDisplay (target) {
     let width = target == null ? gl.drawingBufferWidth : target.width;
     let height = target == null ? gl.drawingBufferHeight : target.height;
 
+    // dnovillo: displayMaterial is the program that merges ALL the input textures and produces the final output.
     displayMaterial.bind();
     if (config.SHADING)
         gl.uniform2f(displayMaterial.uniforms.texelSize, 1.0 / width, 1.0 / height);
@@ -1347,9 +1430,12 @@ function drawDisplay (target) {
     blit(target);
 }
 
+// dnovillo: DONE.
 function applyBloom (source, destination) {
     if (bloomFramebuffers.length < 2)
         return;
+
+    console.log("applyBloom()\n");
 
     let last = destination;
 
@@ -1363,36 +1449,39 @@ function applyBloom (source, destination) {
     gl.uniform1f(bloomPrefilterProgram.uniforms.threshold, config.BLOOM_THRESHOLD);
     gl.uniform1i(bloomPrefilterProgram.uniforms.uTexture, source.attach(0));
     blit(last);
+    console.log("bloomPrefilterProgram.uniforms.curve: " + gl.getUniform(bloomPrefilterProgram.program, gl.getUniformLocation(bloomPrefilterProgram.program, 'curve')));
+    console.log("bloomPrefilterProgram.uniforms.threshold: " + gl.getUniform(bloomPrefilterProgram.program, gl.getUniformLocation(bloomPrefilterProgram.program, 'threshold')));
 
-    bloomBlurProgram.bind();
-    for (let i = 0; i < bloomFramebuffers.length; i++) {
-        let dest = bloomFramebuffers[i];
-        gl.uniform2f(bloomBlurProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
-        gl.uniform1i(bloomBlurProgram.uniforms.uTexture, last.attach(0));
-        blit(dest);
-        last = dest;
-    }
+   bloomBlurProgram.bind();
+   for (let i = 0; i < bloomFramebuffers.length; i++) {
+       let dest = bloomFramebuffers[i];
+       gl.uniform2f(bloomBlurProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
+       gl.uniform1i(bloomBlurProgram.uniforms.uTexture, last.attach(0));
+       blit(dest);
+       last = dest;
+   }
 
-    gl.blendFunc(gl.ONE, gl.ONE);
-    gl.enable(gl.BLEND);
+   gl.blendFunc(gl.ONE, gl.ONE);
+   gl.enable(gl.BLEND);
 
-    for (let i = bloomFramebuffers.length - 2; i >= 0; i--) {
-        let baseTex = bloomFramebuffers[i];
-        gl.uniform2f(bloomBlurProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
-        gl.uniform1i(bloomBlurProgram.uniforms.uTexture, last.attach(0));
-        gl.viewport(0, 0, baseTex.width, baseTex.height);
-        blit(baseTex);
-        last = baseTex;
-    }
+   for (let i = bloomFramebuffers.length - 2; i >= 0; i--) {
+       let baseTex = bloomFramebuffers[i];
+       gl.uniform2f(bloomBlurProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
+       gl.uniform1i(bloomBlurProgram.uniforms.uTexture, last.attach(0));
+       gl.viewport(0, 0, baseTex.width, baseTex.height);
+       blit(baseTex);
+       last = baseTex;
+   }
 
-    gl.disable(gl.BLEND);
-    bloomFinalProgram.bind();
-    gl.uniform2f(bloomFinalProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
-    gl.uniform1i(bloomFinalProgram.uniforms.uTexture, last.attach(0));
-    gl.uniform1f(bloomFinalProgram.uniforms.intensity, config.BLOOM_INTENSITY);
-    blit(destination);
+   gl.disable(gl.BLEND);
+   bloomFinalProgram.bind();
+   gl.uniform2f(bloomFinalProgram.uniforms.texelSize, last.texelSizeX, last.texelSizeY);
+   gl.uniform1i(bloomFinalProgram.uniforms.uTexture, last.attach(0));
+   gl.uniform1f(bloomFinalProgram.uniforms.intensity, config.BLOOM_INTENSITY);
+   blit(destination);
 }
 
+// dnovillo: DONE.
 function applySunrays (source, mask, destination) {
     gl.disable(gl.BLEND);
     sunraysMaskProgram.bind();
@@ -1405,6 +1494,7 @@ function applySunrays (source, mask, destination) {
     blit(destination);
 }
 
+// dnovillo: DONE.
 function blur (target, temp, iterations) {
     blurProgram.bind();
     for (let i = 0; i < iterations; i++) {
@@ -1418,12 +1508,14 @@ function blur (target, temp, iterations) {
     }
 }
 
+// dnovillo: DONE
 function splatPointer (pointer) {
     let dx = pointer.deltaX * config.SPLAT_FORCE;
     let dy = pointer.deltaY * config.SPLAT_FORCE;
     splat(pointer.texcoordX, pointer.texcoordY, dx, dy, pointer.color);
 }
 
+// dnovillo: DONE
 function multipleSplats (amount) {
     for (let i = 0; i < amount; i++) {
         const color = generateColor();
@@ -1438,20 +1530,58 @@ function multipleSplats (amount) {
     }
 }
 
-function splat (x, y, dx, dy, color) {
+// dnovillo: DONE
+function splat(x, y, dx, dy, color) {
+    // splatProgram = Program(baseVertexShader, splatShader)
+    // splatProgram.bind() --> gl.useProgram(splatProgram.program)
     splatProgram.bind();
+
+    console.log("Inputs to splat:");
+    console.log("Canvas size:         " + canvas.width + "x" + canvas.height);
+    console.log("uTarget:             " + velocity.read);
+    console.log("aspectRatio:         " + canvas.width / canvas.height);
+    console.log("point:               (" + x + ", " + y + ")");
+    console.log("color:               (" + dx + ", " + dy + ", 0)");
+    console.log("config.SPLAT_RADIUS: " + config.SPLAT_RADIUS);
+    console.log("radius:              " + correctRadius(config.SPLAT_RADIUS / 100.0));
+
+    // This adds all parameters to splatProgram.
     gl.uniform1i(splatProgram.uniforms.uTarget, velocity.read.attach(0));
     gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width / canvas.height);
     gl.uniform2f(splatProgram.uniforms.point, x, y);
     gl.uniform3f(splatProgram.uniforms.color, dx, dy, 0.0);
     gl.uniform1f(splatProgram.uniforms.radius, correctRadius(config.SPLAT_RADIUS / 100.0));
+
+    console.log("Before calling splatProgram on velocity.write")
+    console.log("splatProgram.uniforms.uTarget: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'uTarget')));
+    console.log("splatProgram.uniforms.aspectRatio: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'aspectRatio')));
+    console.log("splatProgram.uniforms.point: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'point')));
+    console.log("splatProgram.uniforms.color: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'color')));
+    console.log("splatProgram.uniforms.radius: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'radius')));
+
+    // velocity is a DoubleFBO()
+    // velocity.write is the FBO that blit() uses to write.
+    // blit() is essentially a dispatch of one of my compute shaders.
     blit(velocity.write);
+
+
+    // This flips the input and output textures for the velocity doubleFBO.
+    // Similar to the double set of descriptors I have in the filter class.
     velocity.swap();
 
+    // Repeat the same for the dye doubleFBO.
+    // Seems like the doubleFBOs are the FilterShader class or parts of it.
     gl.uniform1i(splatProgram.uniforms.uTarget, dye.read.attach(0));
     gl.uniform3f(splatProgram.uniforms.color, color.r, color.g, color.b);
+    console.log("Before calling splatProgram on dye.write")
+    console.log("splatProgram.uniforms.uTarget: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'uTarget')));
+    console.log("splatProgram.uniforms.aspectRatio: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'aspectRatio')));
+    console.log("splatProgram.uniforms.point: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'point')));
+    console.log("splatProgram.uniforms.color: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'color')));
+    console.log("splatProgram.uniforms.radius: " + gl.getUniform(splatProgram.program, gl.getUniformLocation(splatProgram.program, 'radius')));
     blit(dye.write);
     dye.swap();
+
 }
 
 function correctRadius (radius) {
@@ -1461,6 +1591,7 @@ function correctRadius (radius) {
     return radius;
 }
 
+// dnovillo: NOT NEEDED
 canvas.addEventListener('mousedown', e => {
     let posX = scaleByPixelRatio(e.offsetX);
     let posY = scaleByPixelRatio(e.offsetY);
@@ -1470,6 +1601,7 @@ canvas.addEventListener('mousedown', e => {
     updatePointerDownData(pointer, -1, posX, posY);
 });
 
+// dnovillo: NOT NEEDED
 canvas.addEventListener('mousemove', e => {
     let pointer = pointers[0];
     if (!pointer.down) return;
@@ -1478,10 +1610,12 @@ canvas.addEventListener('mousemove', e => {
     updatePointerMoveData(pointer, posX, posY);
 });
 
+// dnovillo: NOT NEEDED
 window.addEventListener('mouseup', () => {
     updatePointerUpData(pointers[0]);
 });
 
+// dnovillo: NOT NEEDED
 canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     const touches = e.targetTouches;
@@ -1494,6 +1628,7 @@ canvas.addEventListener('touchstart', e => {
     }
 });
 
+// dnovillo: NOT NEEDED
 canvas.addEventListener('touchmove', e => {
     e.preventDefault();
     const touches = e.targetTouches;
@@ -1506,6 +1641,7 @@ canvas.addEventListener('touchmove', e => {
     }
 }, false);
 
+// dnovillo: NOT NEEDED
 window.addEventListener('touchend', e => {
     const touches = e.changedTouches;
     for (let i = 0; i < touches.length; i++)
@@ -1516,6 +1652,7 @@ window.addEventListener('touchend', e => {
     }
 });
 
+// dnovillo: NOT NEEDED
 window.addEventListener('keydown', e => {
     if (e.code === 'KeyP')
         config.PAUSED = !config.PAUSED;
@@ -1562,6 +1699,7 @@ function correctDeltaY (delta) {
     return delta;
 }
 
+// dnovillo: DONE
 function generateColor () {
     let c = HSVtoRGB(Math.random(), 1.0, 1.0);
     c.r *= 0.15;
@@ -1570,6 +1708,7 @@ function generateColor () {
     return c;
 }
 
+// dnovillo: DONE
 function HSVtoRGB (h, s, v) {
     let r, g, b, i, f, p, q, t;
     i = Math.floor(h * 6);
@@ -1594,6 +1733,7 @@ function HSVtoRGB (h, s, v) {
     };
 }
 
+// dnovillo: DONE
 function normalizeColor (input) {
     let output = {
         r: input.r / 255,
@@ -1603,12 +1743,14 @@ function normalizeColor (input) {
     return output;
 }
 
+// dnovillo: DONE --> use std::clamp()
 function wrap (value, min, max) {
     let range = max - min;
     if (range == 0) return min;
     return (value - min) % range + min;
 }
 
+// dnovillo: DONE
 function getResolution (resolution) {
     let aspectRatio = gl.drawingBufferWidth / gl.drawingBufferHeight;
     if (aspectRatio < 1)
@@ -1623,6 +1765,7 @@ function getResolution (resolution) {
         return { width: min, height: max };
 }
 
+// dnovillo: DONE
 function getTextureScale (texture, width, height) {
     return {
         x: width / texture.width,
