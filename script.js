@@ -113,7 +113,7 @@ if (!ext.supportLinearFiltering) {
     config.SUNRAYS = false;
 }
 
-startGUI();
+//startGUI();
 
 function getWebGLContext (canvas) {
     const params = { alpha: true, depth: false, stencil: false, antialias: false, preserveDrawingBuffer: false };
@@ -1167,11 +1167,13 @@ function updateKeywords () {
 
 updateKeywords();
 initFramebuffers();
-multipleSplats(parseInt(Math.random() * 20) + 5);
+multipleSplats(1);// (parseInt(Math.random() * 20) + 5);
 
 let lastUpdateTime = Date.now();
 let colorUpdateTimer = 0.0;
 update();
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
 function update () {
     const dt = calcDeltaTime();
@@ -1182,7 +1184,12 @@ function update () {
     if (!config.PAUSED)
         step(dt);
     render(null);
-    requestAnimationFrame(update);
+
+    sleep(500).then(() => {
+        // dnovillo: Tell the browser that we want to animate again
+        // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+        requestAnimationFrame(update);
+    });
 }
 
 function calcDeltaTime () {
@@ -1313,7 +1320,131 @@ function render (target) {
         drawColor(target, normalizeColor(config.BACK_COLOR));
     if (target == null && config.TRANSPARENT)
         drawCheckerboard(target);
-    drawDisplay(target);
+    //drawDisplay(target);
+    drawTextures();
+}
+
+function normalizeDimensions(width, height) {
+    return { width: 2 * width / gl.canvas.width, height: 2 * height / gl.canvas.height }
+}
+
+function drawTextures() {
+    const vertexShaderSource = `
+attribute vec2 a_position;
+attribute vec2 a_texCoord;
+varying vec2 v_texCoord;
+
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+  v_texCoord = a_texCoord;
+}
+`;
+
+    const fragmentShaderSource = `
+precision mediump float;
+varying vec2 v_texCoord;
+uniform sampler2D u_texture;
+
+void main() {
+  gl_FragColor = texture2D(u_texture, v_texCoord);
+}
+`;
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    gl.useProgram(shaderProgram);
+
+    gl.clearColor(1.0, 1.0, 0.8, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const v = [
+        { name: "bloom", fbo: bloom },
+        { name: "curl", fbo: curl },
+        { name: "ditheringTexture", fbo: ditheringTexture },
+        { name: "divergence", fbo: divergence },
+        { name: "pressure[0]", fbo: pressure.read },
+        { name: "pressure[1]", fbo: pressure.write },
+        { name: "sunraysTemp", fbo: sunraysTemp },
+        { name: "sunrays", fbo: sunrays },
+        { name: "velocity[0]", fbo: velocity.read },
+        { name: "velocity[1]", fbo: velocity.write }
+    ];
+
+    let coordx = -1;
+    let coordy = 1;
+    let maxHeight = 0.0;
+    for (let i = 0; i < v.length; i++) {
+        let texture = v[i].fbo.texture;
+        const norm = normalizeDimensions(v[i].fbo.width, v[i].fbo.height);
+        if (coordx + norm.width >= 1.0) {
+            coordx = -1.0;
+            coordy -= maxHeight;
+            maxHeight = 0.0;
+        }
+        drawOneTexture(texture, shaderProgram, coordx, coordy, norm.width, norm.height);
+        console.log("Drawing texture " + v[i].name + " with normalized dimensions ( " + norm.width + ", " +
+            norm.height + ") at coordinate (" + coordx + ", " + coordy + ")");
+        coordx += norm.width + 0.005;
+        if (norm.height > maxHeight) {
+            maxHeight = norm.height + 0.005;
+        }
+    }
+}
+
+function drawOneTexture(texture, shaderProgram, coordx, coordy, width, height) {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // Define the rectangle vertices and texture coordinates.  Notice that the rectangle
+    // has its origin on the lower-left coordinate.
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+    const va = { x: coordx,         y: coordy - height };
+    const vb = { x: coordx,         y: coordy };
+    const vc = { x: coordx + width, y: coordy - height };
+    const vd = { x: coordx + width, y: coordy };
+    const positions = [
+        va.x, va.y,
+        vb.x, vb.y,
+        vc.x, vc.y,
+        vd.x, vd.y,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    const texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    const texCoords = [
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
+
+    const positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'a_position');
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const texCoordAttributeLocation = gl.getAttribLocation(shaderProgram, 'a_texCoord');
+    gl.enableVertexAttribArray(texCoordAttributeLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.vertexAttribPointer(texCoordAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const textureUniformLocation = gl.getUniformLocation(shaderProgram, 'u_texture');
+    gl.uniform1i(textureUniformLocation, 0);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
 function drawColor (target, color) {
@@ -1427,13 +1558,16 @@ function splatPointer (pointer) {
 function multipleSplats (amount) {
     for (let i = 0; i < amount; i++) {
         const color = generateColor();
-        color.r *= 10.0;
-        color.g *= 10.0;
-        color.b *= 10.0;
-        const x = Math.random();
-        const y = Math.random();
-        const dx = 1000 * (Math.random() - 0.5);
-        const dy = 1000 * (Math.random() - 0.5);
+        color.r = 0.485268;
+        color.g = 1.5;
+        color.b = 0;
+        //color.r *= 10.0;
+        //color.g *= 10.0;
+        //color.b *= 10.0;
+        const x = 0.5; // Math.random();
+        const y = 0.5; // Math.random();
+        const dx = 250; // 1000 * (Math.random() - 0.5);
+        const dy = 250; // 1000 * (Math.random() - 0.5);
         splat(x, y, dx, dy, color);
     }
 }
