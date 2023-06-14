@@ -1185,7 +1185,7 @@ function update () {
         step(dt);
     render(null);
 
-    sleep(500).then(() => {
+    sleep(0).then(() => {
         // dnovillo: Tell the browser that we want to animate again
         // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
         requestAnimationFrame(update);
@@ -1370,14 +1370,11 @@ void main() {
     const v = [
         { name: "bloom", fbo: bloom },
         { name: "curl", fbo: curl },
-        { name: "ditheringTexture", fbo: ditheringTexture },
         { name: "divergence", fbo: divergence },
         { name: "pressure[0]", fbo: pressure.read },
         { name: "pressure[1]", fbo: pressure.write },
-        { name: "sunraysTemp", fbo: sunraysTemp },
-        { name: "sunrays", fbo: sunrays },
         { name: "velocity[0]", fbo: velocity.read },
-        { name: "velocity[1]", fbo: velocity.write }
+        { name: "velocity[1]", fbo: velocity.write },
     ];
 
     let coordx = -1;
